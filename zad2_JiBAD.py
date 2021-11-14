@@ -108,34 +108,39 @@ class Graph:
 
     def bfs(self, start_vertex):
         start_vertex = str(start_vertex)
+        if start_vertex in self.vertexes:
+            # Kolejka FIFO - First In First Out
+            que = queue.Queue()
+            visited_vertexes = [start_vertex]
+            que.put(start_vertex)
+            while que.empty() == False:
+                actual_vertex = que.get()
 
-        # Kolejka FIFO - First In First Out
-        que = queue.Queue()
-        visited_vertexes = [start_vertex]
-        que.put(start_vertex)
-        while que.empty() == False:
-            actual_vertex = que.get()
-
-            for vertex in self.get_neighbors(actual_vertex):
-                if vertex not in visited_vertexes:
-                    que.put(vertex)
-                    visited_vertexes.append(vertex)
-        return visited_vertexes.__iter__()
+                for vertex in self.get_neighbors(actual_vertex):
+                    if vertex not in visited_vertexes:
+                        que.put(vertex)
+                        visited_vertexes.append(vertex)
+            return visited_vertexes.__iter__()
+        else:
+            raise NameError("The vertex is not included in the graph!")
 
     def dfs(self, start_vertex):
         start_vertex = str(start_vertex)
-        # Kolejka LIFO - Last In First Out
-        que = queue.LifoQueue()
-        visited_vertexes = []
-        que.put(start_vertex)
-        while que.empty() == False:
-            vertex = que.get()
-            if vertex not in visited_vertexes:
-                visited_vertexes.append(vertex)
-                L = [ver for ver in self.get_neighbors(vertex) if ver not in visited_vertexes]
-                for ver in L:
-                    que.put(ver)
-        return visited_vertexes.__iter__()
+        if start_vertex in self.vertexes:
+            # Kolejka LIFO - Last In First Out
+            que = queue.LifoQueue()
+            visited_vertexes = []
+            que.put(start_vertex)
+            while que.empty() == False:
+                vertex = que.get()
+                if vertex not in visited_vertexes:
+                    visited_vertexes.append(vertex)
+                    L = [ver for ver in self.get_neighbors(vertex) if ver not in visited_vertexes]
+                    for ver in L:
+                        que.put(ver)
+            return visited_vertexes.__iter__()
+        else:
+            raise NameError("The vertex is not included in the graph!")
 
 
 
