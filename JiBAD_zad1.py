@@ -154,3 +154,8 @@ if __name__ == "__main__":
             print("Wzorzec", word, "pojawia się od", i, "do", i + len(word) - 1)
             
 # Zastosował Pan bardzo nieczytelną reprezentację automatu. Czy ma Pan doświadczenie z programowaniem w C?
+
+# Patryk: Uczyłem się C we własnym zakresie w liceum, lecz nie mogę powiedzieć, że mam opanowany ten język, ograniczyłem się do kilku tutoriali z yt autorstwa Pana Zelenta.
+# Poza tym nie mam doświadczenia z C. Dla mnie ta reprezentacja jest czytelniejsza od wersji słownikowej (tej nie rozumiałem w momencie pisania kodu - teraz już tak).
+# Po studiach matematycznych i w trakcie pisania pracy naukowej (obecnie) bardzo zaprzyjaźniłem się z reprezentacją różnych obiektów przy pomocy macierzy - stąd też właśnie
+# ten pomysł najbardziej mi przypadł do gustu i był dla mnie intuicyjny. Dziękuję za komentarze odnośnie kodu.
