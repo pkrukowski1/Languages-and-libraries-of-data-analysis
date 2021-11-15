@@ -1,12 +1,12 @@
 from collections import defaultdict
-
+# 1/3 pliku to komentarze
 # Funkcja przyjmująca jako argument listę wzorców, na bazie których tworzy automat Aho-Corasicka
 def build(patterns):
     j = len(patterns)
 
     # Bez utraty ogólności załóżmy, że poszukujemy jednie małych liter
     for k in range(j):
-        patterns[k] = patterns[k].lower()
+        patterns[k] = patterns[k].lower()   # właśnie Pan utracił ogólność
 
     # Wprowadzamy górne ograniczenie na maksymalną liczbę stanów. Jest to supremum zbioru
     # wszystkich możliwych wzorców, ponieważ w pesymistycznych danych wejściowych wszystkie litery
@@ -15,7 +15,7 @@ def build(patterns):
 
     # Zakładamy, że symbole pochodzą ze zbioru {a,b,c,d,e,...,z}. Odrzucamy wszelkie pozostałe symbole.
     # Przedstawiona implementacja nie pozwala na załączenie innych symboli.
-    max_char = 26
+    max_char = 26   # a to czemu?
 
     # Tworzymy wektor pełniący rolę odwzorowania s -> wartość_stanu, gdzie s jest stanem, do którego
     # przechodzimy po wczytaniu z taśmy ostatniej litery badanego wzorca. Natomiast wartość_stanu to
@@ -33,7 +33,7 @@ def build(patterns):
     # wczytanie ostatniej litery prowadzi do stanu s1. Uwzględniamy root, dodając jedynkę. Inicjalizujemy minus jedynkami.
     # Tak naprawdę mogłaby być to inna wartość, byleby nie zero. Chodzi o to, by posiadać informację o tym, w
     # których miejscach nasza struktura danych się "kończy".
-    failLink = [-1] * (max_states + 1)
+    failLink = [-1] * (max_states + 1)  # przeszedł Pan ze snake_case na camelCase
 
     # Definiujemy macierz przejścia (tak naprawdę listę dwuwymiarową), która pełni rolę odwzorowania
     # (s1, l) -> s2, gdzie s1 i s2 są stanami, a l to litera z alfabetu. Interpretacja: po odczytaniu litery l z taśmy
@@ -45,7 +45,7 @@ def build(patterns):
 
     # Budujemy strukturę Trie - wypełniamy transistionMatrix. Iterujemy się po każdym słowie, a następnie iterujemy
     # po każdej literze z tego słowa. Potem przechodzimy do kolejnego słowa i kolejnych liter etc.
-    for k in range(j):
+    for k in range(j):  # czy j jest czytelną nazwą?
         pattern = patterns[k]
         current_state = 0
         for symbol in pattern:
@@ -110,7 +110,7 @@ def build(patterns):
     return [transitionMatrix, failLink, out, states]
 
 def search(text, patterns, automaton):
-    AhoCorasik = automaton(patterns)
+    AhoCorasik = automaton(patterns)    # czy jest potrzeba przebudowywać automat co wyszukiwanie?
     transitionMatrix = AhoCorasik[0]
     failLink = AhoCorasik[1]
     out = AhoCorasik[2]
@@ -150,5 +150,7 @@ if __name__ == "__main__":
     text = 'abaabaaaabbababaccacaaa'
 
     for word in search(text, patterns, build):
-        for i in search(text, patterns, build)[word]:
+        for i in search(text, patterns, build)[word]:   # wielokrotne przeszukanie
             print("Wzorzec", word, "pojawia się od", i, "do", i + len(word) - 1)
+            
+# Zastosował Pan bardzo nieczytelną reprezentację automatu. Czy ma Pan doświadczenie z programowaniem w C?
