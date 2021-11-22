@@ -3,7 +3,7 @@ import queue
 class Graph:
 
     # Konstruktor
-    # vertexes to lista wierzchołków (stringów), a edges to lista krotek postaci (wierzchołek_1, wierzchołek_2)
+    # vertexes to lista wierzchołków (stringów), a edges to lista krotek postaci (wierzchołek_1, wierzchołek_2) # mało wydajna i wygodna reprezentacja
     def __init__(self, vertexes, edges):
         self.vertexes = vertexes
         self.edges = edges
@@ -11,15 +11,15 @@ class Graph:
     # Funkcja ta dodaje wierzchołki do grafu, list_of_vertexes to lista wierzchołków do dodania
     def add_vertexes(self, list_of_vertexes):
         for ver in list_of_vertexes:
-            ver = str(ver)
+            ver = str(ver)  # czemu konwersja na string? a krotki nie mogą być wierzchołkami?
             if ver not in self.vertexes:
                 self.vertexes.append(ver)
 
     # Funkcja ta dodaje krawędzie do grafu, jako argument podajemy listę krotek krawędzi.
-    def add_edges(self, list_of_edges):
+    def add_edges(self, list_of_edges): # czy wygodniejszym interfejsem nie byłaby metoda tworząca jedną krawędź, przyjmująca dwa wierzchołki?
         k = len(list_of_edges)
         for j in range(k):
-            edge_1 = list_of_edges[j][0]
+            edge_1 = list_of_edges[j][0]    # myląca nazwa
             edge_2 = list_of_edges[j][1]
             edge = (edge_1, edge_2)
             edge_prim = (edge_2, edge_1)
@@ -31,7 +31,7 @@ class Graph:
     # z przyległymi krawędziami
     def del_vertexes(self, vertexes_to_remove):
         k = len(vertexes_to_remove)
-        for j in range(k):
+        for j in range(k):  # for vertex in vertexes_to_remove
             self.vertexes.remove(vertexes_to_remove[j])
         while k>=0:
             for ver in vertexes_to_remove:
@@ -53,7 +53,11 @@ class Graph:
                     self.vertexes.extend([edge_1, edge_2])
 
         if len(self.edges) < len(self.vertexes)-1:
-            raise Exception("Graph is not connected!")
+            raise Exception("Graph is not connected!")  # i co z tego, że graf nie jest spójny?
+            # proszę nigdy nie rzucać Exception; używamy konkretnych typów wyjątków (potomków)
+    '''
+    Czy może mi Pan wytłumaczyć co robi powyższa metoda? Na moje oko usuwa całą masę wierzchołków, których nie miała usunąć, a potem je znowu dodaje
+    '''
 
     # Jeżeli usunięta krawędź pozostawia samotny wierzchołek, to automatycznie jest on także usuwany. Argument
     # list_of_edges w poniższej funkcji to lista krawędzi (krotek).
@@ -103,7 +107,7 @@ class Graph:
                 if vertex == edge_2[j]:
                     neighbors.add(edge_1[j])
         else:
-            print("Vertex is not included in the vertexes list")
+            print("Vertex is not included in the vertexes list")    # albo rzucamy wyjątek, albo zwracamy None
         return neighbors
 
     def bfs(self, start_vertex):
@@ -113,7 +117,7 @@ class Graph:
             que = queue.Queue()
             visited_vertexes = [start_vertex]
             que.put(start_vertex)
-            while que.empty() == False:
+            while que.empty() == False: # while not que.empty()
                 actual_vertex = que.get()
 
                 for vertex in self.get_neighbors(actual_vertex):
@@ -122,7 +126,7 @@ class Graph:
                         visited_vertexes.append(vertex)
             return visited_vertexes.__iter__()
         else:
-            raise NameError("The vertex is not included in the graph!")
+            raise NameError("The vertex is not included in the graph!") # NameError sygnalizuje raczej błąd w kodzie (nieznaną nazwę zmiennej)
 
     def dfs(self, start_vertex):
         start_vertex = str(start_vertex)
@@ -158,7 +162,7 @@ if __name__ == '__main__':
         while True:
             a = result_dfs.__next__()
             print(a)
-    except StopIteration:
+    except StopIteration:   # po to piszemy __iter__ i __next__, żeby móc używać naszej klasy w pętli for: for vertex in graph.bfs('a')
         pass
 
     try:
