@@ -92,9 +92,8 @@ def count_words(filename):
     sentences = []
     try:
         with open(filename) as infile:
-            WORD_RE = regex.compile(r'\w+|[-.,?!]')
+            WORD_RE = regex.compile(r'\w+')
             for line in infile:
-                line = regex.sub(r'[^\w\s]', '', line)
                 for token in WORD_RE.findall(line):
                     sentences.append(token)
         wordcount = Counter(sentences)
