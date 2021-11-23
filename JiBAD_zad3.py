@@ -87,7 +87,8 @@ class Aho_Corasick:
 
 
 # Zadanie nr 2
-def count_words(filename):
+# filename to wczytywany plik, a n to liczba najczęściej wyświetlanych słów wraz z ich ilością
+def count_words(filename, n):
     """ Funkcja zliczająca słowa z pliku"""
     sentences = []
     try:
@@ -97,8 +98,17 @@ def count_words(filename):
                 for token in WORD_RE.findall(line):
                     sentences.append(token)
         wordcount = Counter(sentences)
-        for item in wordcount.most_common():
-             print("{}\t{}".format(*item))
+        count = 0
+        for item in wordcount.most_common(n):
+            print("{}\t{}".format(*item))
+            count += 1
+            # wyświetlanie remisów
+            if count == n:
+                reverse_sorted_values = sorted(list(wordcount.values()), reverse=True)
+                while reverse_sorted_values[count] == reverse_sorted_values[count+1]:
+                    print("{}\t{}".format(*item))
+                    count += 1
+
     except IOError:
         print("Could not read file")
 
@@ -109,5 +119,5 @@ if __name__ == '__main__':
     result = aho_corasick.search()
     print(aho_corasick.__repr__(result))
 
-    count_words('potop.txt')
+    count_words('potop.txt', 10)
 
