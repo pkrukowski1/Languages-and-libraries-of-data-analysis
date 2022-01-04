@@ -18,13 +18,13 @@ from datetime import timedelta
 
 # Plik borrowed_books.csv to plik, którego budowa jest następująca: id_wypożyczonej_książki,do_kiedy,przez_kogo -
 # książki wypożyczamy na okres jednego miesiąca z możliwością prolongaty o jeden miesiąc (tylko jedna prolongata)
-
-class files:
+# zmieszczenie tego projektu w jednym pliku to zły znak
+class files:    # nazwy klas raczej PascalCasem i w liczbie pojedynczej
     def __init__(self, file):
         self.file = file
 
     def read_csv_file(self):
-        """Funkcja czytająca plik csv"""
+        """Funkcja czytająca plik csv"""    # nazwa to mówi
         with open(self.file, 'r',encoding='UTF8', newline='') as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
@@ -32,7 +32,7 @@ class files:
 
     # Argument line_to_write to linia tekstu dopisywana do pliku
     def write_to_csv_file(self, line_to_write):
-        """Funkcja dopisująca linię tekstu do pliku csv"""
+        """Funkcja dopisująca linię tekstu do pliku csv"""  # a tego nie mówi
         with open(self.file, 'a+', encoding='UTF8', newline='') as csv_file:
             writer_object = csv.writer(csv_file)
             writer_object.writerow(line_to_write)
@@ -51,6 +51,7 @@ class files:
         with open(self.file, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(lines)
+    # taka obsługa pliku jest mało wydajna, może lepiej go napisać od nowa raz na jakiś czas (w tym przy zamknięciu programu?), a w czasie działania trzymać dane w pamięci?
 
     def clear_csv_file(self):
         """Funkcja usuwająca zawartość pliku"""
@@ -61,7 +62,7 @@ class files:
 class library:
 
     def __init__(self):
-        self.log_menu_options = {"1":"Bibliotekarz", "2":"Czytelnik", "3":"Wyjście"}
+        self.log_menu_options = {"1":"Bibliotekarz", "2":"Czytelnik", "3":"Wyjście"}    # czy lista by nie była lepsza?
         self.log_as_librarian = ["Podaj login: ", "Podaj hasło: "]
         self.librarian_options = {"1":"Przyjmij zwrot książki", "2":"Dodaj nową książkę", "3":"Usuń książkę z systemu",
                                   "4":"Dodaj czytelnika", "5":"Dodaj bibliotekarza", "6":"Przeglądaj katalog",
@@ -127,11 +128,11 @@ class library:
         for k in range(1, len(self.browsing_options)):
             print(f"{k}. {self.browsing_options.get(str(k))}")
 
-    def handle_menu_for_librarian(self):
+    def handle_menu_for_librarian(self):    # ta metoda robi za dużo, trzeba to rozbić na mniejsze, łatwiejsze do zarządzania metody
         """Funkcja zarządzająca menu dla bibliotekarza"""
         lib= librarian()
         while True:
-            library.display_options_for_librarian(self)
+            library.display_options_for_librarian(self) # <=> self.display_options_for_librarian()
             librarian_decision = int(input("> "))
             try:
                 if librarian_decision in range(1, len(self.librarian_options) + 1):
@@ -156,8 +157,8 @@ class library:
                                 break
                             elif end == "N":
                                 continue
-                            elif end != "N" and end != "T":
-                                print(f"Nieprawidłowa odpowiedź. Masz jeszcze {str(counter)} prób")
+                            elif end != "N" and end != "T": # czy ten warunek jest tu potrzebny, skoro dwa poprzednie były fałszywe?
+                                print(f"Nieprawidłowa odpowiedź. Masz jeszcze {str(counter)} prób") # czy ta pętla działa tak jak Pan chciał?
                                 counter = counter-1
                     elif self.librarian_options.get(librarian_decision) == "Usuń książkę z systemu":
                         counter = 3
@@ -171,7 +172,7 @@ class library:
                                 break
                             elif end == "N":
                                 continue
-                            elif end != "N" and end != "T":
+                            elif end != "N" and end != "T": # mam deja vu
                                 print(f"Nieprawidłowa odpowiedź. Masz jeszcze {str(counter)} prób")
                                 counter = counter - 1
                     elif self.librarian_options.get(librarian_decision) == "Dodaj czytelnika":
@@ -440,7 +441,7 @@ class librarian:
     # Argumentem jest username dodawanego bibliotekarza
     def add_librarian(self, username):
         """Funkcja dodająca bibliotekarza do systemu"""
-        file = files("librarians.csv")
+        file = files("librarians.csv")  # przesłonięcie nazwy wbudowanej
         if username not in [user[0] for user in file.read_csv_file() if len(user) > 0]:
             file.write_to_csv_file([username,None])
         else:
@@ -490,14 +491,14 @@ class reader:
 
     def get_back_book(self, book_id):
         """Funkcja umożliwiająca zwrot książki"""
-        file_1 = files("books_to_be_returned.csv")
+        file_1 = files("books_to_be_returned.csv")  # czy gdyby ta metoda była dłuższa, to pod koniec by Pan wiedział co jest w file_1, a co w file_2?
         file_2 = files("borrowed_books.csv")
         file_3 = files("books.csv")
         for line in file_2.read_csv_file():
             if line[0] == book_id:
                 file_2.delete_row(book_id)
                 break
-        for line_1 in file_3.read_csv_file():
+        for line_1 in file_3.read_csv_file():   # line, line_1 - łatwo pomylić
         # Chcemy uzyskać wszystkie informacje niezbędne do wpisania do pliku borrowed_books.csv
             if line_1[0] == book_id:
                 file_1.write_to_csv_file([book_id, line_1[1], line_1[2],line_1[3], line_1[4], "0"])
@@ -510,3 +511,4 @@ if __name__ == "__main__":
     # Wartości inicjalizujące bibliotekarza
     #files("librarians.csv").write_to_csv_file(["janek_kowalski", "password"])
 
+# Operuje Pan na niskim poziomie - dużo jest myślenia o tym, gdzie co jest w pliku itp. Po to ma Pan listy, słowniki i tym podobne atrakcje, żeby takie rzeczy się robiło łatwiej i szybciej (mniej kodu).
