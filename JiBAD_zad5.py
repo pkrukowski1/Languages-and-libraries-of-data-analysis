@@ -4,79 +4,81 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from prettytable import PrettyTable
 
+
 class kNN:
 
     def __init__(self, data, K, distance):
         self.data = data
-        self.K = K
+        self.K = K  # zmienne raczej małymi literami
         self.distance = distance
-
 
     # Argumentami jest vector, czyli wektor wartości, na których będziemy operować oraz label, czyli klasa, do której
     # ten wektor należy
     def train(self, vector, label):
         """Funkcja rozbudowująca zbiór przypadków uczących"""
-        data_frame = pd.read_csv(self.data, delim_whitespace=True, header=None)
-        keys = [i for i in range(vector.shape[0]+1)]
-        values = [vector[i] for i in range(vector.shape[0])] + [int(label)]
-        new_row = {key:value for (key, value) in zip(keys, values)}
+        data_frame = pd.read_csv(self.data, delim_whitespace=True, header=None)  # metoda train nie tak miała działać
+        keys = [i for i in range(vector.shape[0] + 1)]  # <=> list(range(vector.shape[0]+1))
+        values = [vector[i] for i in range(vector.shape[0])] + [int(label)]  # <=> list(vector) + [int(label)]
+        new_row = {key: value for (key, value) in enumerate(values)}
         data_frame = data_frame.append(new_row, ignore_index=True)
-        data_frame.to_csv(self.data, index=False, sep = ' ', header=False)
+        data_frame.to_csv(self.data, index=False, sep=' ', header=False)
 
-    def calculate_euclidean_distance(self, vector_1, vector_2):
+    def calculate_euclidean_distance(self, vector_1, vector_2):  # nie lepiej z tego zrobić funkcję?
         """Funkcja licząca odległość Euklidesa pomiędzy dwoma wektorami"""
-        sum_of_squares = np.sum(np.square(vector_1-vector_2))
+        sum_of_squares = np.sum(np.square(vector_1 - vector_2))  # **2
         return np.sqrt(sum_of_squares)
 
     def calculate_taxicab_distance(self, vector_1, vector_2):
         """Funkcja licząca odległość taksówkową pomiędzy dwoma wektorami"""
-        return np.sum(np.abs(vector_1-vector_2))
+        return np.sum(np.abs(vector_1 - vector_2))
 
     def calculate_maximum_distance(self, vector_1, vector_2):
         """Funkcja licząca odległość maximum pomiędzy dwoma wektorami"""
-        vector_of_difference = np.abs(vector_1-vector_2)
+        vector_of_difference = np.abs(vector_1 - vector_2)
         return np.amax(vector_of_difference)
 
     def calculate_cosine_distance(self, vector_1, vector_2):
-        """Funkcja licząca odległosć cosinusową pomiędzy dwoma wektorami"""
+        """Funkcja licząca odległosć cosinusową pomiędzy dwoma wektorami"""  # na pewno odległość?
         return np.dot(vector_1, vector_2) / (np.sqrt(np.dot(vector_1, vector_1) * np.dot(vector_2, vector_2)))
 
     def predict(self, vector_to_predict_class):
         """Funkcja predykująca klasę dla wprowadzanego wektora"""
-        X_train = kNN.split_data(self)["X_train"]
-        y_train = kNN.split_data(self)["y_train"]
+        X_train = kNN.split_data(self)["X_train"]  # <=> self.split_data()
+        y_train = kNN.split_data(self)["y_train"]  # czemu w momencie predykcji jeszcze dzielimy jakieś dane?
 
         # Distances to słownik, którego kluczami są id wierszy data frame'u, a wartościami odległości pomiędzy
-        # wektorami z data frame'u (bez klas), a wektorem vector_to_predict_class
+        # wektorami z data frame'u (bez klas), a wektorem vector_to_predict_class   # czemu to słownik, a nie DataFrame (a właściwie Series)?
         distances = dict()
         for i in X_train.index:
-            distances.update({i+1:self.distance(self, np.array(X_train.loc[i]), vector_to_predict_class)})
+            distances.update({i + 1: self.distance(self, np.array(X_train.loc[i]),
+                                                   vector_to_predict_class)})  # <=> distance[i+1] = self.distance(self, np.array(X_train.loc[i]), vector_to_predict_class)
 
         sorted_distances = sorted(distances.items(), key=lambda kv: kv[1])
-        sorted_distances = {key:value for (key, value) in sorted_distances[:self.K]}
+        sorted_distances = {key: value for (key, value) in sorted_distances[
+                                                           :self.K]}  # <=> dict(sorted_distances[:self.K]) - Python tak ma, że jeśli coś ma sens, to na 90% działa
         labels = dict()
         key_list = list(sorted_distances.keys())
         for i in range(self.K):
-            labels.update({key_list[i]:y_train[key_list[i]-1]})
-        #print(labels)
-        if sum(labels.values()) >= ceil(self.K/2):
-            #kNN.train(self, vector_to_predict_class, int(1))
+            labels.update({key_list[i]: y_train[key_list[i] - 1]})
+        # print(labels)
+        if sum(labels.values()) >= ceil(self.K / 2):
+            # kNN.train(self, vector_to_predict_class, int(1))
             return 1
         else:
-            #kNN.train(self, vector_to_predict_class, int(0))
+            # kNN.train(self, vector_to_predict_class, int(0))
             return 0
 
     def split_data(self):
         """Funkcja dzieląca dataset na zbiór testowy oraz treningowy"""
-        data_frame = pd.read_csv(self.data, delim_whitespace=True, header=None)
+        data_frame = pd.read_csv(self.data, delim_whitespace=True, header=None)  # znowu wczytujemy dane z pliku?
 
         # Dzięki temu możemy obsłużyć w ten sam sposób wiele Data Frame'ów, pod warunkiem, że kolumna Class
         # będzie dołączona jako ostatnia kolumna z prawej strony
         df_without_classess = data_frame.iloc[:, 0:(data_frame.shape[1] - 1)]
         classess = data_frame.iloc[:, data_frame.shape[1] - 1]
         X_train, X_test, y_train, y_test = train_test_split(df_without_classess, classess,
-                                                            test_size = 0.05, random_state = 42)
-        return {"X_train":X_train, "X_test":X_test, "y_train":y_train, "y_test":y_test}
+                                                            test_size=0.05, random_state=42)
+        return {"X_train": X_train, "X_test": X_test, "y_train": y_train, "y_test": y_test}
 
     def calculate_accuracy(self):
         """Funkcja licząca dokładność algorytmu kNN na zbiorze testowym"""
@@ -88,20 +90,19 @@ class kNN:
         TN = kNN.calculate_TN(self, y_test, y_pred)
         FP = kNN.calculate_FP(self, y_test, y_pred)
         FN = kNN.calculate_FN(self, y_test, y_pred)
-        return (TP+TN)/(TP+TN+FP+FN)
-
+        return (TP + TN) / (TP + TN + FP + FN)
 
     def calculate_TP(self, array_of_true_classess, array_of_predicted_classess):
         """Funkcja zwracająca liczbę przypadków True Positive"""
         if len(array_of_predicted_classess) == len(array_of_true_classess):
             length = len(array_of_true_classess)
             TP = 0
-            for i in range(length):
+            for i in range(length): # polecam funkcję zip, a jeszcze bardziej polecam użyć operacji na DataFrame'ach, bo są dużo wydajniejsze od pętli
                 if array_of_true_classess[i] == 1 and array_of_predicted_classess[i] == 1:
                     TP += 1
             return TP
         else:
-            print("Proszę sprawdzić wymiary wektorów")
+            print("Proszę sprawdzić wymiary wektorów")  # lepszy byłby wyjątek
 
     def calculate_TN(self, array_of_true_classess, array_of_predicted_classess):
         """Funkcja zwracająca liczbę przypadków True Negative"""
@@ -139,7 +140,8 @@ class kNN:
         else:
             print("Proszę sprawdzić wymiary wektorów")
 
-class interface:
+
+class interface:  # nazwy klas raczej w PascalCase
 
     def __init__(self):
         self.options = {1: "Metryka euklidesowa", 2: "Metryka taksówkowa", 3: "Metryka maximum",
@@ -172,9 +174,9 @@ class interface:
 
 if __name__ == '__main__':
     # distance = interface().choose_distance()
-    # knn_1_3 = kNN("dataset1.csv", 3, distance)
+    # knn_1_3 = kNN("dataset1.csv", 3, distance)    # to jest materiał na dwie zagnieżdżone pętle
     # knn_1_5 = kNN("dataset1.csv", 5, distance)
-    # knn_1_10 = kNN("dataset1.csv", 10, distance)
+    # knn_1_10 = kNN("dataset1.csv", 10, distance)  # k miało być nieparzyste
     # knn_2_3 = kNN("dataset2.csv", 3, distance)
     # knn_2_5 = kNN("dataset2.csv", 5, distance)
     # knn_2_10 = kNN("dataset2.csv", 10, distance)
@@ -186,7 +188,7 @@ if __name__ == '__main__':
     # print(knn_2_5.calculate_accuracy())
     # print(knn_2_10.calculate_accuracy())
 
-    table = PrettyTable(["Dataset", "K", "Metric", "Accuracy"])
+    table = PrettyTable(["Dataset", "K", "Metric", "Accuracy"]) # a skąd się wzięły te wyniki?
     table.add_row(["dataset1.csv", "3", "Euclidean", "0.98"])
     table.add_row(["dataset1.csv", "5", "Euclidean", "0.98"])
     table.add_row(["dataset1.csv", "10", "Euclidean", "0.98"])
@@ -201,4 +203,3 @@ if __name__ == '__main__':
     table.add_row(["dataset2.csv", "10", "Maximum", "0.968"])
 
     print(table)
-
