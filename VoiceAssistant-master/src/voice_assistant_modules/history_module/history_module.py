@@ -17,6 +17,9 @@ class HistoryModule(VAModule):
         "w którym roku odbyła się",
         "w którym roku odbył się",
         "w którym roku odbyły się",
+        "w którym roku była",
+        "w którym roku był",
+        "w którym roku były"
         "kiedy był",
         "kiedy było",
         "kiedy były",
@@ -41,6 +44,13 @@ class HistoryModule(VAModule):
         "czym jest"
     )
 
+    DATE_TIME_QUESTIONS = (
+        "co było w",
+        "co się zdarzyło w",
+        "co było w latach",
+        "co się zdarzyło w latach"
+    )
+
 
     def normalize_query(self, query_text):
         return query_text.lower()
@@ -52,11 +62,18 @@ class HistoryModule(VAModule):
                 query_text = query_text[len(question) + 1:]
                 query = Query(query_text, self.df)
                 return "W " + str(query.search_for_events()) + " roku"
+
         for question in HistoryModule.PEOPLE_STATEMENTS_QUESTIONS:
             if query_text.startswith(question):
                 query_text = query_text[len(question) + 1:]
                 query = Query(query_text, self.df)
                 return str(query.search_for_people_and_statements())
+
+        for question in HistoryModule.DATE_TIME_QUESTIONS:
+            if query_text.startswith(question):
+                query_text = query_text[len(question) + 1:]
+                query = Query(query_text, self.df)
+                return str(query.search_for_dates())
         else:
             return None  # if not a history question, we can't answer it
 
