@@ -4,13 +4,14 @@ import regex
 # Zadanie nr 1
 
 class Aho_Corasick:
-    def __init__(self, patterns, text_to_search):
+    def __init__(self, patterns, text_to_search):   # w automacie Aho-Corasick chodzi o to, żeby można szukać tych samych wzorców w wielu tekstach
         self.patterns = patterns
         self.text_to_search = text_to_search
         self.automaton = []
 
         # Inicjalizacja roota
-        self.automaton.append({'parent_node':'', 'children':[], 'failure_link':0, 'output':[]})
+        self.automaton.append({'parent_node':'', 'children':[], 'failure_link':0, 'output':[]}) # nie warto tego wrzucić do klasy Node? Albo zrobić czterech osobnych pól?
+        # czy w tym momencie automat jest gotowy do użycia?
 
     def find_next_state(self, current_state, symbol):
         """ Funkcja zwracająca kolejny stan po wczytaniu danego symbolu lub zwracająca None, gdy lista
@@ -48,7 +49,7 @@ class Aho_Corasick:
         for node in self.automaton[0]["children"]:
             q.append(node)
             self.automaton[node]["failure_link"] = 0
-        while q:
+        while q:    # aż się prosi o metodę pomocniczą _bfs
             r = q.popleft()
             for child in self.automaton[r]["children"]:
                 q.append(child)
@@ -68,7 +69,7 @@ class Aho_Corasick:
         current_state = 0
         patterns_found = []
         for i in range(len(self.text_to_search)):
-            while Aho_Corasick.find_next_state(self, current_state, self.text_to_search[i]) is None and current_state != 0:
+            while self.find_next_state(current_state, self.text_to_search[i]) is None and current_state != 0:
                 current_state = self.automaton[current_state]["failure_link"]
             current_state = Aho_Corasick.find_next_state(self, current_state, self.text_to_search[i])
             if current_state is None:
@@ -81,14 +82,14 @@ class Aho_Corasick:
         return patterns_found
 
     # Argument result to wynik poszukiwania wzorców w tekście
-    def __repr__(self, result):
+    def __repr__(self, result): # repr nie przyjmuje parametru poza self
         """ Metoda __repr__ """
         return f"Results = {result}"
 
 
 # Zadanie nr 2
 # filename to wczytywany plik, a n to liczba najczęściej wyświetlanych słów wraz z ich ilością
-def count_words(filename, n):
+def count_words(filename, n):   # dużo pracy jak na jedną funkcję
     """ Funkcja zliczająca słowa z pliku"""
     sentences = []
     try:
@@ -96,21 +97,21 @@ def count_words(filename, n):
             WORD_RE = regex.compile(r'\w+')
             for line in infile:
                 for token in WORD_RE.findall(line):
-                    sentences.append(token)
+                    sentences.append(token) # wczytuje Pan cały plik do pamięci
         wordcount = Counter(sentences)
         count = 0
         for item in wordcount.most_common(n):
             print("{}\t{}".format(*item))
             count += 1
-            # wyświetlanie remisów
+            # wyświetlanie remisów  # nie działa
             if count == n:
                 reverse_sorted_values = sorted(list(wordcount.values()), reverse=True)
-                while reverse_sorted_values[count] == reverse_sorted_values[count+1]:
+                while reverse_sorted_values[count] == reverse_sorted_values[count+1]:   # IndexError
                     print("{}\t{}".format(*item))
                     count += 1
 
     except IOError:
-        print("Could not read file")
+        print("Could not read file")    # zamiana wyjątku na komunikat - mało opłacalna
 
 
 if __name__ == '__main__':
@@ -118,6 +119,6 @@ if __name__ == '__main__':
     aho_corasick.build_trie_with_failure_links()
     result = aho_corasick.search()
     print(aho_corasick.__repr__(result))
-
+    
     count_words('potop.txt', 10)
 
