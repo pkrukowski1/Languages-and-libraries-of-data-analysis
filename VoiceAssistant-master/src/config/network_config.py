@@ -1,0 +1,4 @@
+QUERY_CHANNEL = "sig/stt/"
+ANSWER_CHANNEL = "cmd/tts/"
+
+DEFAULT_BROKER = "127.0.0.1"
